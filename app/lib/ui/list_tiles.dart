@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:clipboard_manager/clipboard_manager.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:mogicians_manual/data/list_items.dart';
 
 class HeaderTile extends StatelessWidget {
@@ -45,14 +48,21 @@ class TextTileState extends State<TextTile> {
         color: Colors.white,
         elevation: 2,
         child: InkWell(
-          onTap: () {
-            setState(() {
-              _expanded = !_expanded;
-            });
-          },
-          child: new Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: generateChildren(),
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                _expanded = !_expanded;
+              });
+            },
+            onLongPress: () {
+              if (_expanded) {
+                _copyToClipboard(item.title, item.body);
+              }
+            },
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: generateChildren(),
+            )
           )
         ),
         margin: EdgeInsets.all(0),
@@ -60,7 +70,6 @@ class TextTileState extends State<TextTile> {
   }
 
   List<Widget> generateChildren() {
-
     List<Widget> contents = [];
     contents.add(Text(
       item.title,
@@ -95,6 +104,21 @@ class TextTileState extends State<TextTile> {
     ));
 
     return children;
+  }
+
+  void _copyToClipboard(String title, String body) {
+    String content = '【$title】$body';
+    ClipboardManager.copyToClipBoard(content).then((result) {
+      Fluttertoast.showToast(
+          msg: "已复制到剪贴板",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.grey.shade700.withOpacity(0.9),
+          textColor: Colors.white,
+          fontSize: 14.0
+      );
+    });
   }
 }
 
